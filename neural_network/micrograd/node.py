@@ -1,5 +1,5 @@
 """
-Learning from Andrej Karpathy's micrograd implementation.
+Learning from Andrej Karpathy's Pytorch-like micrograd implementation.
 
 A module defining a Node class for building computational graphs in a neural network context.
 This class supports basic arithmetic operations and activation functions, and it tracks gradients for backpropagation.
@@ -93,6 +93,9 @@ class Node():
             node._backward()
 
     # Additional operations for convenience (right operations)
+    # NOTE: these operations will handle backpropagation correctly, because they work
+    # by delegating to the primary operations (__add__, __mul__, __pow__) that already
+    # have proper gradient computation.
     def __neg__(self) -> "Node":
         return self * -1
 
@@ -100,10 +103,10 @@ class Node():
         return self + other
 
     def __sub__(self, other: float) -> "Node":
-        return self - other
+        return self + (-other)
 
     def __rsub__(self, other: float) -> "Node":
-        return other - self
+        return other + (-self)
 
     def __rmul__(self, other: float) -> "Node":
         return self * other
