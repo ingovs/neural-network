@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Union
 
 from .engine import Value
 
@@ -58,12 +58,22 @@ class Conv2D():
         in_channels, in_height, in_width = len(x), len(x[0]), len(x[0][0])
         assert in_channels == self.in_channels, "Input channels must match layer's in_channels"
 
-        # Apply padding
+        # Apply padding (zero on borders)
         if self.padding > 0:
             padded_x = [
                 [[Value(0.0) for _ in range(in_width + 2 * self.padding)] for _ in range(in_height + 2 * self.padding)]
                 for _ in range(in_channels)
             ]
+
+            # # to visualize the input before and after the padding
+            # matrix_numbers = [
+            #     [
+            #         [padded_x[i][j][k].data for k in range(len(padded_x[i][j]))]
+            #         for j in range(len(padded_x[i]))
+            #     ]
+            #     for i in range(len(padded_x))
+            # ]
+
             for c in range(in_channels):
                 for h in range(in_height):
                     for w in range(in_width):
@@ -135,7 +145,7 @@ class MaxPooling2D():
                     h_start = oh * self.stride
                     w_start = ow * self.stride
 
-                    # Find the maximum value in the pooling window
+                    # Find the maximum value in the pooling window (this is the kernel[kernel_size x kernel_size] loop)
                     max_val = x[c][h_start][w_start]
                     for kh in range(self.kernel_size):
                         for kw in range(self.kernel_size):
@@ -173,11 +183,12 @@ class MLP():
 
 class CNN():
     """Convolutional Neural Network (CNN)."""
-    def __init__(self, layers: List):
+    def __init__(self, layers: List[Union[Conv2D, MaxPooling2D, Flatten, Layer]]):
         self.layers = layers
 
     def __call__(self, x: List[List[List[Value]]]) -> List[Value]:
         for layer in self.layers:
+            # a layer output x is the input to the next layer
             x = layer(x)
         return x
 
