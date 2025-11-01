@@ -63,12 +63,20 @@ class Value():
     # Activation functions
     def tanh(self) -> "Value":
         x = self.data
-        t = math.exp(2 * x) - 1 / (math.exp(2 * x) + 1)
+        t = (math.exp(2 * x) - 1) / (math.exp(2 * x) + 1)
         out = Value(t, _children=(self,), _operation="tanh")
 
         # 1 - tanh^2(x) is the local derivative of tanh
         def _backward():
             self.gradient += (1 - t ** 2) * out.gradient
+        out._backward = _backward
+        return out
+
+    def relu(self) -> "Value":
+        out = Value(data=max(0, self.data), _children=(self,), _operation="ReLU")
+
+        def _backward():
+            self.gradient += (1 if self.data > 0 else 0) * out.gradient
         out._backward = _backward
         return out
 
