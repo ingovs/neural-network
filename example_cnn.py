@@ -62,8 +62,8 @@ def create_minimal_cnn():
         Conv2D(in_channels=1, out_channels=4, kernel_size=5, stride=1, padding=0),
         Flatten(),
         Layer(
-            num_inputs=4 * 24 * 24, num_neurons=10, activation=False
-        ),  # No activation in output layer
+            num_inputs=4 * 24 * 24, num_neurons=10, activation=True
+        ),
     ]
 
     return CNN(layers)
